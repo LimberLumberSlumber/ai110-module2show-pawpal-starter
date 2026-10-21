@@ -48,10 +48,16 @@ Scheduler: gets all tasks from every pet through the Owner and builds today's sc
 - How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
 - What kinds of prompts or questions were most helpful?
 
+I used Claude to brainstorm the classes and their attributes and methods, draft the UML diagram, generate the class skeleton, and fill in the methods, the demo script, and the first tests. The most helpful prompts were ones that named the specific file or step I was on and asked for one small thing at a time.
+
 **b. Judgment and verification**
 
 - Describe one moment where you did not accept an AI suggestion as-is.
 - How did you evaluate or verify what the AI suggested?
+
+After the skeleton was written, the AI's review suggested a change to the Task class. I did not accept it right away because I wanted to keep the design simple at this point, and I decided to revisit it only if the code actually needed it.
+
+I checked the AI's work by running `python main.py` and comparing the printed schedule with what I expected, and by running `python -m pytest` (2 tests passed). I also compared each step against the assignment instructions.
 
 ---
 

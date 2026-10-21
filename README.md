@@ -42,16 +42,31 @@ pip install -r requirements.txt
 6. Connect your logic to the Streamlit UI in `app.py`.
 7. Refine UML so it matches what you actually built.
 
+## Implementation summary
+
+So far I built the logic layer in `pawpal_system.py` with four classes:
+
+- `Task`: one care activity with a description, time, frequency, and whether it is done. It can mark itself complete.
+- `Pet`: a name, species, and a list of its tasks. Tasks can be added to it.
+- `Owner`: a name and a list of pets. `get_all_tasks()` collects every pet's tasks into one list.
+- `Scheduler`: takes an Owner and gets tasks across all of that owner's pets by calling `Owner.get_all_tasks()`.
+
+The classes work together like this: an Owner has Pets, each Pet has Tasks, and the Scheduler reads from the Owner so it sees tasks from every pet, not just one.
+
+`main.py` is a demo script that creates an owner, two pets, and three tasks and prints today's schedule. Run it with `python main.py`. `tests/test_pawpal.py` has two basic tests, run with `python -m pytest`.
+
 ## 🖥️ Sample Output
 
 Paste a sample of your app's CLI or Streamlit output here so a reader can see what a generated plan looks like:
 
 ```
-# e.g.:
-# Daily plan for Biscuit (Golden Retriever):
-#   08:00 — Morning walk (30 min) [priority: high]
-#   09:00 — Feeding (10 min) [priority: high]
-#   ...
+Today's Schedule for Jordan (3 tasks)
+========================================
+Mochi (dog)
+  08:00  Morning walk [daily] - to do
+  18:00  Evening walk [daily] - to do
+Luna (cat)
+  09:30  Feeding [daily] - to do
 ```
 
 ## 🧪 Testing PawPal+
