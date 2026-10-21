@@ -4,8 +4,21 @@
 
 **a. Initial design**
 
+Three core actions the user should be able to do:
+1. Add a pet
+2. Schedule a task for a pet (like a walk or feeding)
+3. See today's tasks
+
 - Briefly describe your initial UML design.
+
+Four classes: an Owner has Pets, each Pet has Tasks, and a Scheduler works with the Owner to organize everything.
+
 - What classes did you include, and what responsibilities did you assign to each?
+
+Task: one care activity (description, time, frequency, done or not).
+Pet: name and species, plus its list of tasks.
+Owner: name and list of pets, and can get all tasks from every pet.
+Scheduler: gets all tasks from every pet through the Owner and builds today's schedule.
 
 **b. Design changes**
 
