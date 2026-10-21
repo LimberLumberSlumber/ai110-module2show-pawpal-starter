@@ -60,13 +60,35 @@ The classes work together like this: an Owner has Pets, each Pet has Tasks, and 
 Paste a sample of your app's CLI or Streamlit output here so a reader can see what a generated plan looks like:
 
 ```
-Today's Schedule for Jordan (3 tasks)
+Today's Schedule for Jordan
 ========================================
-Mochi (dog)
-  08:00  Morning walk [daily] - to do
-  18:00  Evening walk [daily] - to do
-Luna (cat)
-  09:30  Feeding [daily] - to do
+All tasks, sorted by time
+----------------------------------------
+  08:00  Morning walk (Mochi) [daily] - done
+  09:30  Grooming (Mochi) [once] - to do
+  09:30  Feeding (Luna) [daily] - to do
+  12:00  Medication (Luna) [daily] - to do
+  18:00  Evening walk (Mochi) [daily] - to do
+
+Tasks still to do
+----------------------------------------
+  18:00  Evening walk (Mochi) [daily] - to do
+  09:30  Grooming (Mochi) [once] - to do
+  09:30  Feeding (Luna) [daily] - to do
+  12:00  Medication (Luna) [daily] - to do
+
+Mochi's tasks
+----------------------------------------
+  18:00  Evening walk (Mochi) [daily] - to do
+  08:00  Morning walk (Mochi) [daily] - done
+  09:30  Grooming (Mochi) [once] - to do
+
+Conflict check
+----------------------------------------
+  Warning: 2 tasks at 09:30 on 2026-10-21: Grooming (Mochi), Feeding (Luna)
+
+Completed 'Evening walk' due 2026-10-21
+New task created: 'Evening walk' due 2026-10-22
 ```
 
 ## 🧪 Testing PawPal+
@@ -87,14 +109,12 @@ Sample test output:
 
 ## 📐 Smarter Scheduling
 
-> Fill in once you've implemented scheduling logic.
-
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|
-| Task sorting | | e.g., by priority, duration |
-| Filtering | | e.g., skip tasks if time runs out |
-| Conflict handling | | e.g., overlapping time slots |
-| Recurring tasks | | e.g., daily vs. weekly |
+| Task sorting | `Scheduler.sort_by_time()` | Returns all tasks from every pet sorted by their time. |
+| Filtering | `Scheduler.filter_tasks()` | Filters tasks across all pets by pet name, completion status, or both. |
+| Conflict handling | `Scheduler.detect_conflicts()` | Returns a warning message for each time that has more than one open task, for the same pet or different pets. Only exact matching times are flagged, not overlapping durations. |
+| Recurring tasks | `Scheduler.mark_task_complete()` | Marks a task complete. If it is daily or weekly, a new task is added to the same pet due 1 day or 7 days later, using `timedelta`. |
 
 ## 📸 Demo Walkthrough
 

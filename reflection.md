@@ -39,6 +39,8 @@ Scheduler: gets all tasks from every pet through the Owner and builds today's sc
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
 
+The scheduler only flags tasks that start at exactly the same time. It does not check whether tasks overlap, because tasks don't have a duration. This is reasonable for a simple pet-care app, where a warning about two things at the same time is the most useful check, and it keeps the logic easy to read.
+
 ---
 
 ## 3. AI Collaboration
