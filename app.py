@@ -83,34 +83,67 @@ if st.button("Add task", disabled=not pets):
     selected_pet = next(pet for pet in pets if pet.name == selected_pet_name)
     selected_pet.add_task(Task(task_title, task_time, frequency))
 
-task_rows = [
-    {"pet": pet.name, "task": task.description, "time": task.time, "frequency": task.frequency}
-    for pet in pets
-    for task in pet.get_tasks()
-]
-if task_rows:
-    st.write("Current tasks:")
-    st.table(task_rows)
-elif pets:
+scheduler = Scheduler(st.session_state.owner)
+pet_name_of = {id(task): pet.name for pet in pets for task in pet.get_tasks()}
+
+st.markdown("### Today's Schedule")
+
+if not pets:
+    st.info("Add a pet first, then add tasks for it.")
+elif not scheduler.get_all_tasks():
     st.info("No tasks yet. Add one above.")
 else:
-    st.info("Add a pet first, then add tasks for it.")
+    open_tasks = scheduler.filter_tasks(completed=False)
+    if open_tasks:
+        to_complete = st.selectbox(
+            "Mark a task complete",
+            range(len(open_tasks)),
+            format_func=lambda i: (
+                f"{open_tasks[i].time} {open_tasks[i].description} ({pet_name_of[id(open_tasks[i])]})"
+            ),
+        )
+        if st.button("Mark complete"):
+            done = open_tasks[to_complete]
+            next_task = scheduler.mark_task_complete(done)
+            if next_task:
+                st.success(
+                    f"Completed '{done.description}'. Next {done.frequency} task created for {next_task.due_date}."
+                )
+            else:
+                st.success(f"Completed '{done.description}'.")
+            pet_name_of = {id(task): pet.name for pet in pets for task in pet.get_tasks()}
 
-st.divider()
+    conflicts = scheduler.detect_conflicts()
+    if conflicts:
+        for warning in conflicts:
+            st.warning(warning)
+    else:
+        st.success("No scheduling conflicts.")
 
-st.subheader("Build Schedule")
-st.caption("This button should call your scheduling logic once you implement it.")
+    filter_col1, filter_col2 = st.columns(2)
+    with filter_col1:
+        pet_filter = st.selectbox("Show pet", ["All"] + [pet.name for pet in pets])
+    with filter_col2:
+        status_filter = st.selectbox("Show status", ["All", "To do", "Done"])
 
-if st.button("Generate schedule"):
-    st.warning(
-        "Not implemented yet. Next step: create your scheduling logic (classes/functions) and call it here."
+    shown = scheduler.filter_tasks(
+        pet_name=None if pet_filter == "All" else pet_filter,
+        completed={"All": None, "To do": False, "Done": True}[status_filter],
     )
-    st.markdown(
-        """
-Suggested approach:
-1. Design your UML (draft).
-2. Create class stubs (no logic).
-3. Implement scheduling behavior.
-4. Connect your scheduler here and display results.
-"""
-    )
+    shown_ids = {id(task) for task in shown}
+    rows = [
+        {
+            "time": task.time,
+            "task": task.description,
+            "pet": pet_name_of[id(task)],
+            "frequency": task.frequency,
+            "due": str(task.due_date),
+            "status": "done" if task.completed else "to do",
+        }
+        for task in scheduler.sort_by_time()
+        if id(task) in shown_ids
+    ]
+    if rows:
+        st.table(rows)
+    else:
+        st.info("No tasks match these filters.")

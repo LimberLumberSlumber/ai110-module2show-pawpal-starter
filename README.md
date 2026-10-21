@@ -44,16 +44,30 @@ pip install -r requirements.txt
 
 ## Implementation summary
 
-So far I built the logic layer in `pawpal_system.py` with four classes:
+The logic layer lives in `pawpal_system.py` and has four classes:
 
-- `Task`: one care activity with a description, time, frequency, and whether it is done. It can mark itself complete.
+- `Task`: one care activity with a description, time, frequency (once, daily, or weekly), due date, and whether it is done. It can mark itself complete.
 - `Pet`: a name, species, and a list of its tasks. Tasks can be added to it.
 - `Owner`: a name and a list of pets. `get_all_tasks()` collects every pet's tasks into one list.
-- `Scheduler`: takes an Owner and gets tasks across all of that owner's pets by calling `Owner.get_all_tasks()`.
+- `Scheduler`: takes an Owner and works on tasks across all of that owner's pets by calling `Owner.get_all_tasks()`. It sorts, filters, detects conflicts, and handles recurring tasks.
 
-The classes work together like this: an Owner has Pets, each Pet has Tasks, and the Scheduler reads from the Owner so it sees tasks from every pet, not just one.
+The classes work together like this: an Owner has Pets, each Pet has Tasks, and the Scheduler reads from the Owner so it sees tasks from every pet, not just one. The UML is in `diagrams/uml_final.mmd` (the original draft is in `diagrams/uml_draft.mmd`).
 
-`main.py` is a demo script that creates an owner, two pets, and three tasks and prints today's schedule. Run it with `python main.py`. `tests/test_pawpal.py` has two basic tests, run with `python -m pytest`.
+### Features
+
+- Sorting by time across all pets (`Scheduler.sort_by_time()`)
+- Filtering by pet name and/or completion status (`Scheduler.filter_tasks()`)
+- Conflict warnings when two open tasks are at the same time (`Scheduler.detect_conflicts()`)
+- Daily and weekly recurrence: completing a recurring task creates the next one (`Scheduler.mark_task_complete()`)
+- A Streamlit app (`app.py`) that shows the sorted schedule, filters, conflict warnings, and a mark-complete button
+
+### Running the demo, app, and tests
+
+```bash
+python main.py            # CLI demo
+streamlit run app.py      # Streamlit app
+python -m pytest          # tests
+```
 
 ## 🖥️ Sample Output
 
@@ -138,10 +152,47 @@ Confidence level: ⭐⭐⭐⭐ (4/5). All 10 tests pass and cover the main sched
 
 Describe your app in numbered steps so a reader can follow along without watching a video:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+Run the app with `streamlit run app.py`. In the app a user can add pets, add tasks for a pet (with a time and a frequency), view the schedule, filter it, and mark tasks complete.
 
-**Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->
+1. Enter a pet name and species and click **Add pet**. The pet appears in the "Current pets" table and stays in memory (the Owner is kept in `st.session_state`).
+2. Pick the pet, enter a task title, a time such as `08:00`, and a frequency, then click **Add task**. Add a few tasks, including two at the same time.
+3. Look at **Today's Schedule**. Tasks from all pets appear sorted by time (`Scheduler.sort_by_time()`).
+4. Check the conflict warning. If two open tasks share a time, a `st.warning` names both tasks and their pets (`Scheduler.detect_conflicts()`). If not, a success message says there are no conflicts.
+5. Use **Show pet** and **Show status** to filter the table (`Scheduler.filter_tasks()`).
+6. Pick a task and click **Mark complete**. If it is daily or weekly, a new task is created for the next date and a success message says so (`Scheduler.mark_task_complete()`).
+
+Key Scheduler behaviors shown: sorting across pets, filtering, conflict warnings, and recurring tasks. The CLI demo (`python main.py`) shows the same behaviors in the terminal:
+
+```
+Today's Schedule for Jordan
+========================================
+All tasks, sorted by time
+----------------------------------------
+  08:00  Morning walk (Mochi) [daily] - done
+  09:30  Grooming (Mochi) [once] - to do
+  09:30  Feeding (Luna) [daily] - to do
+  12:00  Medication (Luna) [daily] - to do
+  18:00  Evening walk (Mochi) [daily] - to do
+
+Tasks still to do
+----------------------------------------
+  18:00  Evening walk (Mochi) [daily] - to do
+  09:30  Grooming (Mochi) [once] - to do
+  09:30  Feeding (Luna) [daily] - to do
+  12:00  Medication (Luna) [daily] - to do
+
+Mochi's tasks
+----------------------------------------
+  18:00  Evening walk (Mochi) [daily] - to do
+  08:00  Morning walk (Mochi) [daily] - done
+  09:30  Grooming (Mochi) [once] - to do
+
+Conflict check
+----------------------------------------
+  Warning: 2 tasks at 09:30 on 2026-10-21: Grooming (Mochi), Feeding (Luna)
+
+Completed 'Evening walk' due 2026-10-21
+New task created: 'Evening walk' due 2026-10-22
+```
+
+**Screenshot or video** *(optional)*: none included.
