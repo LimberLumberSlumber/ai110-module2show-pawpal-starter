@@ -1,6 +1,11 @@
 import streamlit as st
 
+from pawpal_system import Owner, Pet, Task, Scheduler
+
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
+
+if "owner" not in st.session_state:
+    st.session_state.owner = Owner("Jordan")
 
 st.title("🐾 PawPal+")
 
@@ -43,11 +48,22 @@ owner_name = st.text_input("Owner name", value="Jordan")
 pet_name = st.text_input("Pet name", value="Mochi")
 species = st.selectbox("Species", ["dog", "cat", "other"])
 
+if st.button("Add pet"):
+    st.session_state.owner.add_pet(Pet(pet_name, species))
+
+if st.session_state.owner.pets:
+    st.write("Current pets:")
+    st.table(
+        [{"name": pet.name, "species": pet.species} for pet in st.session_state.owner.pets]
+    )
+else:
+    st.info("No pets yet. Add one above.")
+
 st.markdown("### Tasks")
 st.caption("Add a few tasks. In your final version, these should feed into your scheduler.")
 
-if "tasks" not in st.session_state:
-    st.session_state.tasks = []
+pets = st.session_state.owner.pets
+selected_pet_name = st.selectbox("Pet", [pet.name for pet in pets]) if pets else None
 
 col1, col2, col3 = st.columns(3)
 with col1:
@@ -57,16 +73,28 @@ with col2:
 with col3:
     priority = st.selectbox("Priority", ["low", "medium", "high"], index=2)
 
-if st.button("Add task"):
-    st.session_state.tasks.append(
-        {"title": task_title, "duration_minutes": int(duration), "priority": priority}
-    )
+col4, col5 = st.columns(2)
+with col4:
+    task_time = st.text_input("Time", value="08:00")
+with col5:
+    frequency = st.selectbox("Frequency", ["once", "daily", "weekly"])
 
-if st.session_state.tasks:
+if st.button("Add task", disabled=not pets):
+    selected_pet = next(pet for pet in pets if pet.name == selected_pet_name)
+    selected_pet.add_task(Task(task_title, task_time, frequency))
+
+task_rows = [
+    {"pet": pet.name, "task": task.description, "time": task.time, "frequency": task.frequency}
+    for pet in pets
+    for task in pet.get_tasks()
+]
+if task_rows:
     st.write("Current tasks:")
-    st.table(st.session_state.tasks)
-else:
+    st.table(task_rows)
+elif pets:
     st.info("No tasks yet. Add one above.")
+else:
+    st.info("Add a pet first, then add tasks for it.")
 
 st.divider()
 
