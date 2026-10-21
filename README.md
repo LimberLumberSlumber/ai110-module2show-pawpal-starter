@@ -95,17 +95,35 @@ New task created: 'Evening walk' due 2026-10-22
 
 ```bash
 # Run the full test suite:
-pytest
+python -m pytest
 
-# Run with coverage:
+# Optional: run with coverage (requires `pip install pytest-cov` first):
 pytest --cov
 ```
+
+The tests in `tests/test_pawpal.py` cover:
+
+- Marking a task complete and adding a task to a pet
+- Sorting tasks by time across multiple pets
+- Daily and weekly recurrence (a new task is created for the next occurrence) and one-off tasks creating nothing
+- Conflict detection for same-time tasks across pets, with no false warnings for different times or completed tasks
+- Edge cases: an owner with no pets, a pet with no tasks, and filtering by pet, by status, and by an unknown pet
 
 Sample test output:
 
 ```
-# Paste your pytest output here
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.7.0
+rootdir: D:\CodePathFall2026\CodePathAI110Fall2026\CodePathAIFall2026Projects\Unit5Project2\ai110-module2show-pawpal-starter
+plugins: anyio-4.15.1
+collected 10 items
+
+tests\test_pawpal.py ..........                                          [100%]
+
+============================== 10 passed in 0.05s ==============================
 ```
+
+Confidence level: ⭐⭐⭐⭐ (4/5). All 10 tests pass and cover the main scheduling behaviors and edge cases. I did not test overlapping durations, invalid time strings, or the Streamlit UI.
 
 ## 📐 Smarter Scheduling
 
